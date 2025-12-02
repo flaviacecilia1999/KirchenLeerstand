@@ -8,6 +8,7 @@ import {
   ReactiveFormsModule} from '@angular/forms';
 import {Validators} from '@angular/forms';
 import {bootstrapApplication} from '@angular/platform-browser';
+import { Utilizations } from './utilizations';
 
 type AnliegendeNutzungenFormRaw = {
    schule: boolean | null;
@@ -51,7 +52,7 @@ export class App {
 
   intializeUtilizationArray(this: any){
     this.utilizations = [];
-    this.utilizations.push({prio: 0, strike: false, label: "Turnhalle"});
+    this.utilizations.push({prio: 0, strike: false, label: Utilizations.Turnhalle});
     this.utilizations.push({prio: 0, strike: false, label: "Kletterhalle"});
     this.utilizations.push({prio: 0, strike: false, label: "Hallenbad"});
     this.utilizations.push({prio: 0, strike: false, label: "Indoor-Spielplatz"});
@@ -138,6 +139,9 @@ export class App {
   }
 
   processFormative(this: any, selection: string | null | undefined) {
+    if(selection == null || selection == undefined){
+      return;
+    } 
     switch ( selection ) {
       case "cityFormative":
         this.changePrioOfUtilization("Kletterhalle", 2);
@@ -153,7 +157,7 @@ export class App {
         this.changePrioOfUtilization("Bibliothek", 2);
         this.changePrioOfUtilization("Ausstellungsraum", 2);
 
-        this.strikeUtilization("Turnhalle");
+        this.strikeUtilization(Utilizations.Turnhalle);
         this.strikeUtilization("Indoor-Spielplatz");
         this.strikeUtilization("Atelier- und Kreativraum");
         this.strikeUtilization("Sozialhotel");
@@ -226,7 +230,7 @@ export class App {
         break;
       case "quaterCityFormative":
         this.changePrioOfUtilization("Indoor-Spielplatz", 1);
-        this.changePrioOfUtilization("Turnhalle", 1);
+        this.changePrioOfUtilization(Utilizations.Turnhalle, 1);
         this.changePrioOfUtilization("Kletterhalle", 1);
         this.changePrioOfUtilization("Hallenbad", 1);
         this.changePrioOfUtilization("Tanzschule", 1);
@@ -284,7 +288,7 @@ export class App {
         this.changePrioOfUtilization("Erweiterungsbau Altenheim", 1);
         this.changePrioOfUtilization("Kita", 1);
         this.changePrioOfUtilization("Offenes Ganztagsangebot", 1);
-        this.changePrioOfUtilization("Turnhalle", 1);
+        this.changePrioOfUtilization(Utilizations.Turnhalle, 1);
         this.changePrioOfUtilization("Sportplatz", 1);
         this.changePrioOfUtilization("Tennisplatz", 1);
         this.changePrioOfUtilization("Spielplatz", 1);
@@ -310,6 +314,9 @@ export class App {
   }
 
   processAnliegendeNutzungen(this: any, selection: AnliegendeNutzungenFormRaw) {
+    if(selection == null || selection == undefined){
+      return;
+    } 
     if(selection.schule){
       this.changePrioOfUtilization("Turnhalle", 1);
       this.changePrioOfUtilization("Jugendtreff", 1);
@@ -356,7 +363,10 @@ export class App {
     }
   }
 
-    processEingang(selection: string | null | undefined) {
+  processEingang(selection: string | null | undefined) {
+    if(selection == null || selection == undefined){
+      return;
+    } 
     switch ( selection ) {
       case "ImWestwerk":
         this.strikeUtilization("Stadtpark");
@@ -381,7 +391,10 @@ export class App {
         break;
     }
   }
-      processBautyp(selection: string | null | undefined) {
+  processBautyp(selection: string | null | undefined) {
+    if(selection == null || selection == undefined){
+      return;
+    } 
     switch ( selection ) {
       case "Basilika":
         this.strikeUtilization("Stadtpark");
@@ -418,7 +431,10 @@ export class App {
     }
   }
 
-        processDenkmalschutz(selection: string | null | undefined) {
+  processDenkmalschutz(selection: string | null | undefined) {
+    if(selection == null || selection == undefined){
+      return;
+    } 
     switch ( selection ) {
       case "Ja":
         this.strikeUtilization("Stadtpark");
@@ -457,6 +473,9 @@ export class App {
 
 
    processBausubstanz(selection: string | null | undefined) {
+    if(selection == null || selection == undefined){
+      return;
+    } 
     switch ( selection ) {
       case "Gut":
         this.strikeUtilization("Stadtpark");
@@ -524,6 +543,9 @@ export class App {
   }
 
   processAltersquotient(quotient: string | null | undefined){
+    if(quotient == null || quotient == undefined){
+      return;
+    } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 30){
       this.changePrioOfUtilization("Indoor-Spielplatz", 1);
@@ -533,6 +555,9 @@ export class App {
   }
 
   processJugendquotient(quotient: string | null | undefined){
+    if(quotient == null || quotient == undefined){
+      return;
+    } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 40){
       this.changePrioOfUtilization("Indoor-Spielplatz", 1);
@@ -542,6 +567,9 @@ export class App {
   }
 
     processJungeErwachsene(quotient: string | null | undefined){
+    if(quotient == null || quotient == undefined){
+      return;
+    } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 15){
       this.changePrioOfUtilization("Indoor-Spielplatz", 1);
@@ -551,6 +579,9 @@ export class App {
   }
 
   processArmutsquotient(quotient: string | null | undefined){
+    if(quotient == null || quotient == undefined){
+      return;
+    } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 20){
       this.changePrioOfUtilization("Indoor-Spielplatz", 1);
@@ -560,6 +591,9 @@ export class App {
   }
 
   processNachbarschaft(quotient: string | null | undefined){
+    if(quotient == null || quotient == undefined){
+      return;
+    } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 30){
       this.changePrioOfUtilization("Indoor-Spielplatz", 1);
@@ -568,7 +602,10 @@ export class App {
     }
   }
 
-    processMigrationshintergrund(quotient: string | null | undefined){
+  processMigrationshintergrund(quotient: string | null | undefined){
+    if(quotient == null || quotient == undefined){
+      return;
+    } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 40){
       this.changePrioOfUtilization("Indoor-Spielplatz", 1);
@@ -596,5 +633,6 @@ export class App {
   findUsageIndex(searchLabel: String): number {
     return this.utilizations.findIndex(i => i.label === searchLabel);
   }
+
 }
 bootstrapApplication(App);

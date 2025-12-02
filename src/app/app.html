@@ -99,7 +99,7 @@
   <br />
   <h3> 9. Wie hoch ist der Anteil an jungen Erwachsenen (18-25 Jahre) im Quartier in Prozent? </h3>
   <div>
-    <input type="number" formControlName="jugendquotient"/>
+    <input type="number" formControlName="youngAdults"/>
   </div>
   <br />
   <h3> 10. Wie hoch ist der Anteil an SGB-II EmpfängerInnen im Quartier in Prozent? </h3>
@@ -114,11 +114,13 @@
   <br />
   <h3> 12. Wie hoch ist der Anteil an Menschen mit Migrationshintergrund in Prozent? </h3>
   <div>
-    <input type="number" formControlName="stability"/>
+    <input type="number" formControlName="migration"/>
   </div>
   <br />
-  <button type="button" [disabled]="!statistik.valid" (click)="calcUtilizations()">Berechne Nutzungen</button>
+  <!-- <button type="button" [disabled]="!statistik.valid" (click)="calcUtilizations()">Berechne Nutzungen</button> -->
+  <button type="button" (click)="calcUtilizations()">Berechne Nutzungen</button>
 </form>
+
 
 
 <h2>Mögliche Nutzungen</h2>
