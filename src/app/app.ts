@@ -1,8 +1,5 @@
 import {Component} from '@angular/core';
 import {  
-  AbstractControl,
-  FormArray,
-  FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule} from '@angular/forms';
@@ -10,7 +7,6 @@ import {Validators} from '@angular/forms';
 import {bootstrapApplication} from '@angular/platform-browser';
 import { Utilizations } from './utilizations';
 import { Tags } from './tags';
-import { TagContentType } from '@angular/compiler';
 import { Types } from './types';
 
 type AnliegendeNutzungenFormRaw = {
@@ -26,8 +22,16 @@ interface Utilization {
   prio: number;
   strike: boolean;
   label: Utilizations;
+  secondaryLabel?: Utilization;
   tags: Array<Tags>;
 }
+
+// Tags für die Nutzungen
+const tagsForTurnhalle = [Tags.Innenraum, Tags.nichtRepraesentativ, Tags.SportNutzung, Tags.Mehrgeschossig, Tags.Rentabel, Tags.ErfordertKeinLicht, Tags.KonstantesPublikum, Tags.ZielgruppeKinder];
+const tagsForKletterhalle = [Tags.Innenraum, Tags.RepraesentativStadt, Tags.SportNutzung, Tags.ErfordertKeinLicht, Tags.ZielgruppeKinder, Tags.ZielgruppeJungeErwachsene, Tags.Mehrgeschossig, Tags.Rentabel, Tags.PublikumsMagnet, Tags.Konsumfrei];
+const tagsForHallenbad = [Tags.Innenraum, Tags.RepraesentativStadt, Tags.SportNutzung, Tags.ErfordertKeinLicht, Tags.Mehrgeschossig, Tags.Finanzierungsbedarf, Tags.PublikumsMagnet, Tags.ZielgruppeKinder, Tags.ZielgruppeSenioren];
+
+
 
 @Component({
   selector: 'app-root',
@@ -39,6 +43,8 @@ export class App {
   utilizationsMain: Array<Utilization> = [];
   utilizationsSecondary: Array<Utilization> = [];
   utilizationsBoth: Array<Utilization> = [];
+
+  showSecondaryUtilization: boolean = true;
 
   statistik = new FormGroup({
     formative: new FormControl('', Validators.required),
@@ -61,15 +67,16 @@ export class App {
     migration: new FormControl('', Validators.required), 
   });
 
+
   constructor(){
     this.intializeUtilizationArray();
   }
 
   intializeUtilizationArray(this: any){
     this.utilizations = [];
-    this.utilizations.push({type: Types.main, tags: [Tags.Innenraum, Tags.nichtRepraesentativ, Tags.SportNutzung, Tags.Mehrgeschossig, Tags.Rentabel, Tags.ErfordertKeinLicht, Tags.KonstantesPublikum, Tags.ZielgruppeKinder], prio: 0, strike: false, label: Utilizations.Turnhalle});
-    this.utilizations.push({type: Types.main, tags: [Tags.Innenraum, Tags.RepraesentativStadt, Tags.SportNutzung, Tags.ErfordertKeinLicht, Tags.ZielgruppeKinder, Tags.ZielgruppeJungeErwachsene, Tags.Mehrgeschossig, Tags.Rentabel, Tags.PublikumsMagnet, Tags.Konsumfrei], prio: 0, strike: false, label: Utilizations.Kletterhalle});
-    this.utilizations.push({type: Types.main, tags: [Tags.Innenraum, Tags.RepraesentativStadt, Tags.SportNutzung, Tags.ErfordertKeinLicht, Tags.Mehrgeschossig, Tags.Finanzierungsbedarf, Tags.PublikumsMagnet, Tags.ZielgruppeKinder, Tags.ZielgruppeSenioren], prio: 0, strike: false, label: Utilizations.Hallenbad});
+    this.utilizations.push({type: Types.main, tags: tagsForTurnhalle, prio: 0, strike: false, label: Utilizations.Turnhalle});
+    this.utilizations.push({type: Types.main, tags: tagsForKletterhalle, prio: 0, strike: false, label: Utilizations.Kletterhalle});
+    this.utilizations.push({type: Types.both, tags: tagsForHallenbad, prio: 0, strike: false, label: Utilizations.Hallenbad, secondaryLabel: Utilizations.Umkleide});
     this.utilizations.push({type: Types.main, tags: [Tags.Innenraum, Tags.ZielgruppeKinder, Tags.Rentabel, Tags.ErfordertKeinLicht, Tags.PublikumsMagnet, Tags.Mehrgeschossig], prio: 0, strike: false, label: Utilizations.IndoorSpielplatz});
     this.utilizations.push({type: Types.main, tags: [Tags.Innenraum, Tags.ErfordertLicht, Tags.Eingeschossig, Tags.Stapelbar, Tags.Rentabel, Tags.KonstantesPublikum, Tags.SportNutzung, Tags.KulturelleEinrichtung, Tags.ZielgruppeKinder, Tags.ZielgruppeJungeErwachsene], prio: 0, strike: false, label: Utilizations.Tanzschule});
     this.utilizations.push({type: Types.main, tags: [Tags.Innenraum, Tags.ErfordertLicht, Tags.Eingeschossig, Tags.Stapelbar, Tags.Rentabel, Tags.KonstantesPublikum, Tags.Bildungseinrichtung, Tags.KulturelleEinrichtung, Tags.ZielgruppeKinder, Tags.ZielgruppeJungeErwachsene], prio: 0, strike: false, label: Utilizations.Musikschule});
@@ -144,16 +151,21 @@ export class App {
     this.processBautyp(this.statistik.value.type);
     this.processDenkmalschutz(this.statistik.value.protection);
     this.processBausubstanz(this.statistik.value.bausubstanz);
-    this.processAltersquotient(this.statistik.value.altersquotient);
-    this.processJugendquotient(this.statistik.value.jugendquotient);
-    this.processJungeErwachsene(this.statistik.value.youngAdults);
+
     this.processArmutsquotient(this.statistik.value.poverty);
     this.processNachbarschaft(this.statistik.value.stability);
     this.processMigrationshintergrund(this.statistik.value.migration);
 
-    this.utilizationsMain = this.utilizations.filter((item) => item.type===Types.main);
+
+    if((this.statistik.value.altersquotient!=="" && this.processAltersquotient(this.statistik.value.altersquotient))
+      && (this.statistik.value.jugendquotient!=="" && this.processJugendquotient(this.statistik.value.jugendquotient))
+      && (this.statistik.value.youngAdults!=="" && this.processJungeErwachsene(this.statistik.value.youngAdults))){
+       this.processDemographicQuotients(); 
+    }
+
+    this.utilizationsMain = this.utilizations.filter((item) => 
+      item.type===Types.main || item.type===Types.both);
     this.utilizationsSecondary = this.utilizations.filter((item) => item.type===Types.secondary);
-    this.utilizationsBoth = this.utilizations.filter((item) => item.type===Types.both);
   }
 
   processFormative(this: any, selection: string | null | undefined) {
@@ -186,7 +198,6 @@ export class App {
         this.strikeTag(Tags.KeinPublikum);
         break;
 
-
       case "quaterCityFormative":
         this.changePrioOfTag(Tags.RepraesentativStadt, 1);
         this.changePrioOfTag(Tags.RepraesentativQuartier, 1);
@@ -200,7 +211,6 @@ export class App {
         this.strikeTag(Tags.KeinPublikum);
         break;
         
-
       case "notFormative":
         this.changePrioOfTag(Tags.nichtRepraesentativ, 1);
         this.changePrioOfTag(Tags.Rentabel, 1);
@@ -391,7 +401,6 @@ export class App {
         this.changePrioOfUtilization(Utilizations.Tafel, -1);
         this.changePrioOfUtilization(Utilizations.Gemeinschaftsgarten, -1);
         this.changePrioOfUtilization(Utilizations.Spielplatz, -1);
-        //and so on
         break;
     }
   }
@@ -401,17 +410,17 @@ export class App {
     } 
     switch ( selection ) {
       case "Basilika":
-   
+        this.showSecondaryUtilization = true;
         //and so on
         break;
 
-      case "Hallenkirche":        
-      
+      case "Hallenkirche":
+        this.showSecondaryUtilization = true;        
         //and so on
         break;
 
       case "Saalkirche":        
-      
+        this.showSecondaryUtilization = false;
         //and so on
         break;
     }
@@ -467,84 +476,97 @@ export class App {
     } 
     switch ( selection ) {
       case "Gut":
-        this.strikeTag(Tags.Aussenraum)
+        this.strikeTag(Tags.Aussenraum);
         //and so on
         break;
 
       case "Schlecht":        
-        this.changePrioOfTag(Tags.Aussenraum, 1)
+        this.changePrioOfTag(Tags.Aussenraum, 1);
         //and so on
         break;
 
       case "SehrSchlecht":
-        this.strikeTag(Tags.Innenraum)
+        this.strikeTag(Tags.Innenraum);
       //and so on
         break;
     }
   }
 
-  processAltersquotient(quotient: string | null | undefined){
-    if(quotient == null || quotient == undefined){
-      return;
+  processAltersquotient(quotient: string | null | undefined): boolean{
+    if(quotient == null || quotient == undefined  || quotient === ""){
+      return true;
     } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 30){
-      this.changePrioOfTag(Tags.ZielgruppeSenioren, 1)
-      this.changePrioOfTag(Tags.ZielgruppeKinder, -1)
-      this.changePrioOfTag(Tags.ZielgruppeJungeErwachsene, -1)
+      this.changePrioOfTag(Tags.ZielgruppeSenioren, 1);
+      this.changePrioOfTag(Tags.ZielgruppeKinder, -1);
+      this.changePrioOfTag(Tags.ZielgruppeJungeErwachsene, -1);
+      return false;
     }
+    return true;
   }
 
-  processJugendquotient(quotient: string | null | undefined){
-    if(quotient == null || quotient == undefined){
-      return;
+  processJugendquotient(quotient: string | null | undefined): boolean{
+    if(quotient == null || quotient == undefined || quotient === ""){
+      return true;
     } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 40){
-      this.changePrioOfTag(Tags.ZielgruppeSenioren, -1)
-      this.changePrioOfTag(Tags.ZielgruppeKinder, 1)
-      this.changePrioOfTag(Tags.ZielgruppeJungeErwachsene, -1)
+      this.changePrioOfTag(Tags.ZielgruppeSenioren, -1);
+      this.changePrioOfTag(Tags.ZielgruppeKinder, 1);
+      this.changePrioOfTag(Tags.ZielgruppeJungeErwachsene, -1);
+      return false;
     }
+    return true;
   }
 
-    processJungeErwachsene(quotient: string | null | undefined){
-    if(quotient == null || quotient == undefined){
-      return;
+  processJungeErwachsene(quotient: string | null | undefined): boolean{
+    if(quotient == null || quotient == undefined  || quotient === ""){
+      return true;
     } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 15){
-      this.changePrioOfTag(Tags.ZielgruppeSenioren, -1)
-      this.changePrioOfTag(Tags.ZielgruppeKinder, -1)
-      this.changePrioOfTag(Tags.ZielgruppeJungeErwachsene, 1)
+      this.changePrioOfTag(Tags.ZielgruppeSenioren, -1);
+      this.changePrioOfTag(Tags.ZielgruppeKinder, -1);
+      this.changePrioOfTag(Tags.ZielgruppeJungeErwachsene, 1);
+      return false;
     }
+    return true;
   }
 
-  processArmutsquotient(quotient: string | null | undefined){
-    if(quotient == null || quotient == undefined){
+  processDemographicQuotients(){
+    //this.changePrioOfTag(Tags.ErfordertLicht, 1000);
+  }
+
+  processArmutsquotient(quotient: string | null | undefined ){
+    if(quotient == null || quotient == undefined  || quotient === ""){
       return;
     } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 20){
-      this.changePrioOfTag(Tags.SozialeEinrichtung, 1)
-      this.changePrioOfTag(Tags.Konsumfrei, 1)
-      this.changePrioOfTag(Tags.Bildungseinrichtung, 1)
+      this.changePrioOfTag(Tags.SozialeEinrichtung, 1);
+      this.changePrioOfTag(Tags.Konsumfrei, 1);
+      this.changePrioOfTag(Tags.Bildungseinrichtung, 1);
     }
   }
 
   processNachbarschaft(quotient: string | null | undefined){
-    if(quotient == null || quotient == undefined){
+    if(quotient == null || quotient == undefined || quotient === ""){
       return;
     } 
     let quotientNumber = Number(quotient);
     if(quotientNumber >= 30){
-      this.changePrioOfTag(Tags.SozialeEinrichtung, 1)
-      this.changePrioOfTag(Tags.RepraesentativQuartier, 1)
-      this.changePrioOfTag(Tags.PublikumsMagnet, 1)
-       }
+      this.changePrioOfTag(Tags.SozialeEinrichtung, 1);
+      this.changePrioOfTag(Tags.RepraesentativQuartier, 1);
+      this.changePrioOfTag(Tags.PublikumsMagnet, 1);
+    }
+    else {
+      //this.changePrioOfTag(Tags.SozialeEinrichtung, 500);
+    }
   }
 
   processMigrationshintergrund(quotient: string | null | undefined){
-    if(quotient == null || quotient == undefined){
+    if(quotient == null || quotient == undefined || quotient === ""){
       return;
     } 
     let quotientNumber = Number(quotient);

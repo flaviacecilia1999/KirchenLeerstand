@@ -66,4 +66,5 @@ export enum Utilizations {
     BlockHeizkraftwerk = "Block Heizkraftwerk",
     Waermepumpenstandort = "Wärmepunmpenstandort",
     Kolumbarium = "Kolumbarium",
+    Umkleide = "Umkleide",
 }
