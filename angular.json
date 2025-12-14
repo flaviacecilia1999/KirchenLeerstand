@@ -17,6 +17,7 @@
             "polyfills": [
               "zone.js"
             ],
+            "outputPath": "dist/", 
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
