@@ -233,7 +233,7 @@
           <span>{{ utilization.label }}</span>
           }
 
-          @if (utilization.secondaryLabel) {
+          @if (utilization.secondaryLabel && !utilization.strike) {
           <span class="text-muted">
             (mit Nebennutzung {{ utilization.secondaryLabel }})
           </span>
