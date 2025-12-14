@@ -225,8 +225,20 @@ export class App {
     }
 
     this.utilizationsMain = this.utilizations.filter((item) => 
-      item.type===Types.main || item.type===Types.both);
-    this.utilizationsSecondary = this.utilizations.filter((item) => item.type===Types.secondary);
+      item.type===Types.main || item.type===Types.both)
+        .sort(this.sortPrio())
+        .sort(this.sortStrike());
+    this.utilizationsSecondary = this.utilizations.filter((item) => item.type===Types.secondary)
+        .sort(this.sortPrio())
+        .sort(this.sortStrike());
+  }
+
+  private sortStrike(): ((a: Utilization, b: Utilization) => number) | undefined {
+    return (a, b) => (a.strike < b.strike ? -1 : 1);
+  }
+
+  private sortPrio(): ((a: Utilization, b: Utilization) => number) | undefined {
+    return (a, b) => (a.prio < b.prio ? -1 : 1);
   }
 
   processFormative(this: any, selection: string | null | undefined) {
